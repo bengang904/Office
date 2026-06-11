@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONLY OFFICE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --panel: #262626;
+            --accent: #ff6200;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --border: #333333;
+        }
+        body {
+            font-family: 'Yandex Sans', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .wrapper {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        header {
+            padding: 20px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: var(--accent);
+        }
+        .group {
+            margin-bottom: 30px;
+        }
+        .group-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .btn-box {
+            background: var(--panel);
+            padding: 20px 10px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid var(--border);
+        }
+        .btn-box:hover {
+            border-color: var(--accent);
+        }
+        .btn-box i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--accent);
+        }
+        .upload-zone {
+            background: var(--panel);
+            padding: 30px;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+        .upload-zone:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <header>ONLY OFFICE</header>
+
+    <div class="group">
+        <div class="group-title">Create New</div>
+        <div class="grid">
+            <div class="btn-box" onclick="createNewDoc('word')"><i class="fas fa-file-word"></i>Word</div>
+            <div class="btn-box" onclick="createNewDoc('excel')"><i class="fas fa-file-excel"></i>Excel</div>
+            <div class="btn-box" onclick="createNewDoc('ppt')"><i class="fas fa-file-powerpoint"></i>PPT</div>
+            <div class="btn-box" onclick="createNewDoc('pdf')"><i class="fas fa-file-pdf"></i>PDF</div>
+        </div>
+    </div>
+
+    <div class="group">
+        <div class="group-title">Upload File</div>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+            <div>Click to upload document</div>
+        </div>
+        <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(event)">
+    </div>
+</div>
+
+<script>
+    let docConfig = { document: {}, documentType: 'word', height: '100%', width: '100%' };
+
+    function openNewWindow(cfg) {
+        window.open('./onlyoffice.html?docConfig=' + encodeURI(JSON.stringify(cfg)), '_blank');
+    }
+
+    function createNewDoc(type) {
+        const types = { 
+            word: {t:'word', f:'docx', n:'New.docx'}, 
+            excel: {t:'cell', f:'xlsx', n:'New.xlsx'}, 
+            ppt: {t:'slide', f:'pptx', n:'New.pptx'}, 
+            pdf: {t:'pdf', f:'pdf', n:'New.pdf'} 
+        };
+        docConfig.document.title = types[type].n;
+        docConfig.document.fileType = types[type].f;
+        docConfig.documentType = types[type].t;
+        openNewWindow(docConfig);
+    }
+
+    async function handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const blobUrl = URL.createObjectURL(file);
+        docConfig.document.url = blobUrl;
+        docConfig.document.title = file.name;
+        docConfig.document.fileType = file.name.split('.').pop();
+        docConfig.documentType = ['docx','doc'].includes(docConfig.document.fileType) ? 'word' : 
+                                 ['xlsx','xls'].includes(docConfig.document.fileType) ? 'cell' : 'slide';
+        openNewWindow(docConfig);
+    }
+</script>
+
+</body>
+</html>
