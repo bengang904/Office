@@ -3,93 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONLY OFFICE</title>
+    <title>ONLYOFFICE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --bg: #1a1a1a;
-            --panel: #262626;
-            --accent: #ff6200;
-            --text: #ffffff;
-            --text-muted: #a0a0a0;
-            --border: #333333;
-        }
-        body {
-            font-family: 'Yandex Sans', Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        .wrapper {
-            width: 100%;
-            max-width: 480px;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-        header {
-            padding: 20px 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-            color: var(--accent);
-        }
-        .group {
-            margin-bottom: 30px;
-        }
-        .group-title {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-        .btn-box {
-            background: var(--panel);
-            padding: 20px 10px;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid var(--border);
-        }
-        .btn-box:hover {
-            border-color: var(--accent);
-        }
-        .btn-box i {
-            display: block;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-        .upload-zone {
-            background: var(--panel);
-            padding: 30px;
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: 0.2s;
-        }
-        .upload-zone:hover {
-            border-color: var(--accent);
-            color: var(--text);
-        }
+        :root { --bg: #1a1a1a; --panel: #262626; --accent: #ff6200; --text: #ffffff; --text-muted: #a0a0a0; --border: #333333; }
+        body { font-family: 'Yandex Sans', Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; min-height: 100vh; }
+        .wrapper { width: 100%; max-width: 480px; display: flex; flex-direction: column; padding: 20px; }
+        header { padding: 20px 0; font-size: 1.5rem; font-weight: 700; letter-spacing: -1px; color: var(--accent); }
+        .group { margin-bottom: 30px; }
+        .group-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .btn-box { background: var(--panel); padding: 20px 10px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 1px solid var(--border); }
+        .btn-box:hover { border-color: var(--accent); }
+        .btn-box i { display: block; font-size: 1.5rem; margin-bottom: 10px; color: var(--accent); }
+        .upload-zone { background: var(--panel); padding: 30px; border: 2px dashed var(--border); border-radius: 8px; text-align: center; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); color: var(--text); }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <header>ONLY OFFICE</header>
-
     <div class="group">
         <div class="group-title">Create New</div>
         <div class="grid">
@@ -99,49 +33,82 @@
             <div class="btn-box" onclick="createNewDoc('pdf')"><i class="fas fa-file-pdf"></i>PDF</div>
         </div>
     </div>
-
     <div class="group">
         <div class="group-title">Upload File</div>
-        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-zone" id="dropZone" 
+             onclick="document.getElementById('fileInput').click()"
+             ondragover="event.preventDefault(); this.classList.add('dragover')" 
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="handleDrop(event)">
             <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
-            <div>Click to upload document</div>
+            <div>Click or drag file here</div>
         </div>
         <input type="file" id="fileInput" style="display:none" onchange="handleFileSelect(event)">
     </div>
 </div>
 
 <script>
-    let docConfig = { document: {}, documentType: 'word', height: '100%', width: '100%' };
-
-    function openNewWindow(cfg) {
-        window.open('./onlyoffice.html?docConfig=' + encodeURI(JSON.stringify(cfg)), '_blank');
-    }
-
+    let docConfig = { 'document': { 'fileType': 'docx', 'title': '测试文档.docx' }, 'documentType': 'word', 'height': '100%', 'width': '100%' }
+    function openNewWindow(docConfig) { window.open('./onlyoffice.html?docConfig=' + encodeURI(JSON.stringify(docConfig)), '_blank'); };
+    
     function createNewDoc(type) {
-        const types = { 
-            word: {t:'word', f:'docx', n:'New.docx'}, 
-            excel: {t:'cell', f:'xlsx', n:'New.xlsx'}, 
-            ppt: {t:'slide', f:'pptx', n:'New.pptx'}, 
-            pdf: {t:'pdf', f:'pdf', n:'New.pdf'} 
-        };
-        docConfig.document.title = types[type].n;
-        docConfig.document.fileType = types[type].f;
-        docConfig.documentType = types[type].t;
-        openNewWindow(docConfig);
+        const fileNames = { word: '新建Word文档.docx', excel: '新建Excel表格.xlsx', ppt: '新建PowerPoint演示.pptx', pdf: '新建PDF文档.pdf' }
+        const documentTypes = { word: 'word', excel: 'cell', ppt: 'slide', pdf: 'pdf' }
+        const fileTypes = { word: 'docx', excel: 'xlsx', ppt: 'pptx', pdf: 'pdf' }
+        docConfig.document.title = fileNames[type]
+        delete docConfig.document.url
+        docConfig.document.fileType = fileTypes[type]
+        docConfig.documentType = documentTypes[type]
+        if (type === 'pdf') {
+            fetch('./assets/empty.pdf')
+                .then(response => response.arrayBuffer())
+                .then(buffer => {
+                    const blob = new Blob([new Uint8Array(buffer)], { type: 'application/pdf' });
+                    docConfig.document.url = URL.createObjectURL(blob);
+                    openNewWindow(docConfig);
+                })
+                .catch(error => { console.error('读取PDF文件失败:', error); });
+            return;
+        }
+        openNewWindow(docConfig)
     }
 
-    async function handleFileSelect(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const blobUrl = URL.createObjectURL(file);
-        docConfig.document.url = blobUrl;
-        docConfig.document.title = file.name;
-        docConfig.document.fileType = file.name.split('.').pop();
-        docConfig.documentType = ['docx','doc'].includes(docConfig.document.fileType) ? 'word' : 
-                                 ['xlsx','xls'].includes(docConfig.document.fileType) ? 'cell' : 'slide';
-        openNewWindow(docConfig);
+    async function handleFileSelect(event) {
+        const file = event.target.files[0]
+        if (!file) return
+        processFile(file);
+    }
+
+    async function processFile(file) {
+        try {
+            const arrayBuffer = await file.arrayBuffer()
+            const blob = new Blob([arrayBuffer])
+            const blobUrl = URL.createObjectURL(blob)
+            const fileType = getFileType(file.name)
+            const documentTypes = { word: 'word', excel: 'cell', ppt: 'slide', pdf: 'pdf' }
+            
+            docConfig.document.url = blobUrl
+            docConfig.document.title = file.name
+            docConfig.document.fileType = file.name.split('.').pop()
+            docConfig.documentType = documentTypes[fileType] || 'word'
+            openNewWindow(docConfig)
+        } catch (error) { console.error('处理文件失败:', error); alert('文件处理失败，请重试') }
+    }
+
+    function getFileType(fileName) {
+        const ext = fileName.split('.').pop().toLowerCase()
+        if (['doc', 'docx'].includes(ext)) return 'word'
+        if (['xls', 'xlsx'].includes(ext)) return 'excel'
+        if (['ppt', 'pptx'].includes(ext)) return 'ppt'
+        if (['pdf'].includes(ext)) return 'pdf'
+        return 'unknown'
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        document.getElementById('dropZone').classList.remove('dragover');
+        if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
     }
 </script>
-
 </body>
 </html>
